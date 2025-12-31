@@ -16,22 +16,17 @@ dotenv.config();
 
 const app = express();
 
-/* -------------------- CORS CONFIG -------------------- */
-
 const allowedOrigins = [
-  "http://localhost:5173",              // Local frontend
-  "https://jobportalfy.netlify.app"     // Netlify frontend
+  "http://localhost:5173",
+  "https://jobportalfy.netlify.app"
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow server-to-server and Postman
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
     } else {
-      return callback(new Error("CORS blocked: " + origin));
+      callback(new Error("CORS blocked: " + origin));
     }
   },
   credentials: true,
@@ -39,8 +34,6 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-// Preflight support
-app.options("/*", cors());
 
 
 /* -------------------- MIDDLEWARE -------------------- */
