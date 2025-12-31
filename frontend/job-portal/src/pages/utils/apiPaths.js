@@ -19,7 +19,6 @@ export const API_PATHS = {
     UPDATE_JOBS: (id) => `/api/jobs/${id}`,
     TOGGLE_CLOSE: (id) => `/api/jobs/${id}/toggle-close`,
     DELETE_JOB: (id) => `/api/jobs/${id}`,
-
     SAVE_JOB: (id) => `/api/save-jobs/${id}`,
     UNSAVE_JOB: (id) => `/api/save-jobs/${id}`,
     GET_SAVED_JOBS: "/api/save-jobs/my"
@@ -28,7 +27,7 @@ export const API_PATHS = {
     APPLY_TO_JOB: (id) => `/api/applications/${id}`,
     GET_ALL_APPLICATIONS: (id) => `/api/applications/job/${id}`,
     UPDATE_STATUS: (id) => `/api/applications/${id}/status`,
-    GET_MY_APPLICATIONS: "/api/applications/my", // ADD THIS
+    GET_MY_APPLICATIONS: "/api/applications/my",
   },
   IMAGE: {
     UPLOAD_IMAGE: "/api/auth/upload-image",
