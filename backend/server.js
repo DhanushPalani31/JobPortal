@@ -17,13 +17,14 @@ dotenv.config();
 
 const app = express();
 
-app.use(
-  cors({
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://jobportalfy.netlify.app"
+  ],
+  credentials: true
+}));
+
 
 app.use(express.json());
 validateOpenAIKey();
