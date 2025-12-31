@@ -7,12 +7,14 @@ import JobSeekerDashboard from "./pages/JobSeeker/JobSeekerDashboard"
 import JobDetails from "./pages/JobSeeker/JobDetails"
 import SavedJobs from "./pages/JobSeeker/SavedJobs"
 import UserProfile from "./pages/JobSeeker/UserProfile"
+import MyApplications from "./pages/JobSeeker/MyApplication"
 import ProtectedRoute from "./routes/ProtectedRoute"
 import EmployerDashboard from "./pages/Employer/EmployerDashboard"
 import JobPostingForm from "./pages/Employer/JobPostingForm"
 import ManageJobs from "./pages/Employer/ManageJobs"
 import ApplicationViewer from "./pages/Employer/ApplicationViewer"
 import EmployerProfilePage from "./pages/Employer/EmployerProfilePage"
+import AllApplications from "./pages/Employer/AllApplication"
 import "./index.css"
 import { AuthProvider } from "./context/AuthContext"
 
@@ -30,6 +32,7 @@ const App = () => {
           <Route path="/job/:jobid" element={<JobDetails/>} />
           <Route path="/profile" element={<UserProfile/>}/>
           <Route path="/saved-jobs" element={<SavedJobs/>}/>
+          <Route path="/my-applications" element={<MyApplications/>}/> {/* ADD THIS ROUTE */}
 
           {/* Protected Routes */}
           
@@ -39,11 +42,8 @@ const App = () => {
                <Route path="/manage-jobs" element={<ManageJobs/>} />
                <Route path="/applicants" element={<ApplicationViewer/>} />
                <Route path="/company-profile" element={<EmployerProfilePage/>} />
+               <Route path="/all-applications" element={<AllApplications/>} />
           </Route>
-
-
-
-
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

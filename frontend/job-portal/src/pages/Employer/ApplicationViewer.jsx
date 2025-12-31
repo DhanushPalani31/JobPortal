@@ -33,9 +33,9 @@ const ApplicationViewer = () => {
       const response = await axiosInstance.get(
         API_PATHS.APPLICATIONS.GET_ALL_APPLICATIONS(jobId)
       );
-      setApplications(response.data.applications || []);
+      setApplications(response.data || []);
     } catch (error) {
-      console.log("Failed to fetch applications");
+      console.log("Failed to fetch applications:",error);
     } finally {
       setLoading(false);
     }
@@ -113,115 +113,117 @@ const ApplicationViewer = () => {
             </div>
           ) : (
             <div className="space-y-8">
-              {Object.values(groupedApplications).map(({ job, applications }) => (
-                <div
-                  key={job._id}
-                  className="bg-white rounded-xl shadow-md overflow-hidden"
-                >
-                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                      <div>
-                        <h2 className="text-lg font-semibold text-white">
-                          {job.title}
-                        </h2>
-                        <div className="flex flex-wrap items-center gap-4 mt-2 text-blue-100">
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-4 w-4" />
-                            <span className="text-sm">{job.location}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Briefcase className="h-4 w-4" />
-                            <span className="text-sm">{job.type}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm">{job.category}</span>
+              {Object.values(groupedApplications).map(
+                ({ job, applications }) => (
+                  <div
+                    key={job._id}
+                    className="bg-white rounded-xl shadow-md overflow-hidden"
+                  >
+                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                          <h2 className="text-lg font-semibold text-white">
+                            {job.title}
+                          </h2>
+                          <div className="flex flex-wrap items-center gap-4 mt-2 text-blue-100">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4" />
+                              <span className="text-sm">{job.location}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Briefcase className="h-4 w-4" />
+                              <span className="text-sm">{job.type}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-sm">{job.category}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2">
-                        <span className="text-sm text-white font-medium">
-                          {applications.length} Application
-                          {applications.length !== 1 ? "s" : ""}
-                        </span>
+                        <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2">
+                          <span className="text-sm text-white font-medium">
+                            {applications.length} Application
+                            {applications.length !== 1 ? "s" : ""}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Application List */}
-                  <div className="p-6">
-                    <div className="space-y-4">
-                      {applications.map((application) => (
-                        <div
-                          key={application._id}
-                          className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="flex-shrink-0">
-                              {application.applicant.avatar ? (
-                                <img
-                                  src={application.applicant.avatar}
-                                  alt={application.applicant.name}
-                                  className="h-12 w-12 rounded-full object-cover"
-                                />
-                              ) : (
-                                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                                  <span className="text-blue-600 font-semibold">
-                                    {getInitials(application.applicant.name)}
+                    {/* Application List */}
+                    <div className="p-6">
+                      <div className="space-y-4">
+                        {applications.map((application) => (
+                          <div
+                            key={application._id}
+                            className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="flex-shrink-0">
+                                {application.applicant.avatar ? (
+                                  <img
+                                    src={application.applicant.avatar}
+                                    alt={application.applicant.name}
+                                    className="h-12 w-12 rounded-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <span className="text-blue-600 font-semibold">
+                                      {getInitials(application.applicant.name)}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Applicant Info */}
+                              <div className="min-w-0 flex-1">
+                                <h3 className="font-semibold text-gray-900">
+                                  {application.applicant.name}
+                                </h3>
+                                <p className="text-gray-600 text-sm">
+                                  {application.applicant.email}
+                                </p>
+                                <div className="flex items-center gap-1 mt-1 text-gray-500 text-xs">
+                                  <Calendar className="h-3 w-3" />
+                                  <span>
+                                    Applied{" "}
+                                    {moment(application.createdAt)?.format(
+                                      "Do MMM YYYY"
+                                    )}
                                   </span>
                                 </div>
-                              )}
-                            </div>
-
-                            {/* Applicant Info */}
-                            <div className="min-w-0 flex-1">
-                              <h3 className="font-semibold text-gray-900">
-                                {application.applicant.name}
-                              </h3>
-                              <p className="text-gray-600 text-sm">
-                                {application.applicant.email}
-                              </p>
-                              <div className="flex items-center gap-1 mt-1 text-gray-500 text-xs">
-                                <Calendar className="h-3 w-3" />
-                                <span>
-                                  Applied{" "}
-                                  {moment(application.createdAt)?.format(
-                                    "Do MMM YYYY"
-                                  )}
-                                </span>
                               </div>
                             </div>
-                          </div>
 
-                          {/* Actions */}
-                          <div className="flex items-center gap-3 mt-4 md:mt-0">
-                            <StatusBadge status={application.status} />
-                            <button
-                              onClick={() =>
-                                handleDownloadResume(
-                                  application.applicant.resume
-                                )
-                              }
-                              className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                              <Download className="h-4 w-4" />
-                              Resume
-                            </button>
-                            <button
-                              onClick={() =>
-                                setSelectedApplicant(application)
-                              }
-                              className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
-                            >
-                              <Eye className="h-4 w-4" />
-                              View Profile
-                            </button>
+                            {/* Actions */}
+                            <div className="flex items-center gap-3 mt-4 md:mt-0">
+                              <StatusBadge status={application.status} />
+                              <button
+                                onClick={() =>
+                                  handleDownloadResume(
+                                    application.applicant.resume
+                                  )
+                                }
+                                className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                              >
+                                <Download className="h-4 w-4" />
+                                Resume
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setSelectedApplicant(application)
+                                }
+                                className="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                              >
+                                <Eye className="h-4 w-4" />
+                                View Profile
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           )}
 

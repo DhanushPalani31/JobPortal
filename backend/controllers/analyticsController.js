@@ -21,10 +21,15 @@ export const getEmployerAnalytics = async (req, res) => {
     prev7Days.setDate(now.getDate() - 14);
 
     // COUNT
-
-    const totalActivateJobs = await Job.countDocuments({
+    const totalActiveJobs = await Job.countDocuments({
       company: companyId,
       isClosed: false,
+    });
+
+    // ADD THIS: Count closed jobs
+    const closedJobs = await Job.countDocuments({
+      company: companyId,
+      isClosed: true,
     });
 
     const jobs = await Job.find({ company: companyId })
@@ -36,20 +41,26 @@ export const getEmployerAnalytics = async (req, res) => {
       job: { $in: jobIds },
     });
 
+    // ADD THIS: Count total applicants (unique applicants)
+    const totalApplicants = await Application.distinct("applicant", {
+      job: { $in: jobIds },
+    }).then(applicants => applicants.length);
+
     const totalHired = await Application.countDocuments({
       job: { $in: jobIds },
       status: "Accepted",
     });
 
     // TRENDS
-
     const activeJobsLast7 = await Job.countDocuments({
       company: companyId,
+      isClosed: false,
       createdAt: { $gte: last7Days, $lte: now },
     });
 
     const activeJobsPrev7 = await Job.countDocuments({
       company: companyId,
+      isClosed: false,
       createdAt: {
         $gte: prev7Days,
         $lt: last7Days,
@@ -85,7 +96,6 @@ export const getEmployerAnalytics = async (req, res) => {
     const hiredTrend = getTrend(hiredLast7, hiredPrev7);
 
     // DATA
-
     const recentJobs = await Job.find({ company: companyId })
       .sort({ createdAt: -1 })
       .limit(5)
@@ -94,16 +104,18 @@ export const getEmployerAnalytics = async (req, res) => {
     const recentApplications = await Application.find({
       job: { $in: jobIds },
     })
-      .sort({ createdAt: -1 }) // ✅ use createdAt, not created
+      .sort({ createdAt: -1 })
       .limit(5)
-      .populate("applicant", "name email avatar") // ✅ matches your schema
+      .populate("applicant", "name email avatar")
       .populate("job", "title");
 
     res.json({
       counts: {
-        totalActivateJobs,
+        totalActiveJobs,
         totalApplications,
+        totalApplicants, // ADDED
         totalHired,
+        closedJobs, // ADDED
         trends: {
           activeJobs: activeJobTrend,
           totalApplications: applicantTrend,

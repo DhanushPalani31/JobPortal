@@ -28,9 +28,13 @@ export const API_PATHS = {
     APPLY_TO_JOB: (id) => `/api/applications/${id}`,
     GET_ALL_APPLICATIONS: (id) => `/api/applications/job/${id}`,
     UPDATE_STATUS: (id) => `/api/applications/${id}/status`,
+    GET_MY_APPLICATIONS: "/api/applications/my", // ADD THIS
   },
-
   IMAGE: {
     UPLOAD_IMAGE: "/api/auth/upload-image",
+  },
+  AI: {
+    GENERATE_JOB: "/api/ai/generate-job-description",
+    GET_STATS: "/api/ai/stats"
   }
 };

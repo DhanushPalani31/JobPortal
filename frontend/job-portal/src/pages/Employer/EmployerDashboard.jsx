@@ -66,7 +66,7 @@ const StatCard = ({
           {trend && (
             <div className="flex items-center mt-2 text-sm text-white/90">
               <TrendingUp className="h-4 w-4 mr-1" />
-              <span>{trendValue}%</span>
+              <span>{trendValue > 0 ? '+' : ''}{trendValue}%</span>
             </div>
           )}
         </div>
@@ -122,11 +122,11 @@ const EmployerDashboard = () => {
             />
 
             <StatCard
-              title="Total Applicants"
-              value={dashboardData?.counts?.totalApplicants || 0}
+              title="Total Applications"
+              value={dashboardData?.counts?.totalApplications || 0}
               icon={Users}
               trend
-              trendValue={dashboardData?.counts?.trends?.applicants || 0}
+              trendValue={dashboardData?.counts?.trends?.totalApplications || 0}
               color="green"
             />
 
@@ -212,7 +212,7 @@ const EmployerDashboard = () => {
                   title: "Review Applications",
                   icon: Users,
                   color: "bg-green-50 text-green-700",
-                  path: "/applications",
+                  path: "/applicants",
                 },
                 {
                   title: "Company Settings",
