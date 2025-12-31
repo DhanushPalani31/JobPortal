@@ -39,43 +39,39 @@ const JobSeekerDashboard = () => {
   })
 
   // Function to fetch jobs from API
-  const fetchJobs = async (filterparams = {}) => {
-    try {
-      setLoading(true);
-      setError(null);
+ const fetchJobs = async (filterparams = {}) => {
+  try {
+    setLoading(true);
+    setError(null);
 
-      // Build query parameters
-      const params = new URLSearchParams();
+    // Build query parameters
+    const params = new URLSearchParams();
 
-      if (filterparams.keyword) params.append("keyword", filterparams.keyword);
-      if (filterparams.location)
-        params.append("location", filterparams.location)
-      if (filterparams.minSalary)
-        params.append("minSalary", filterparams.minSalary)
-      if (filterparams.maxSalary)
-        params.append("maxSalary", filterparams.maxSalary)
-      if (filterparams.type) params.append("type", filterparams.type)
-      if (filterparams.category)
-        params.append("category", filterparams.category)
-      if (user) params.append("userId", user?._id)
+    if (filterparams.keyword) params.append("keyword", filterparams.keyword);
+    if (filterparams.location) params.append("location", filterparams.location);
+    if (filterparams.minSalary) params.append("minSalary", filterparams.minSalary);
+    if (filterparams.maxSalary) params.append("maxSalary", filterparams.maxSalary);
+    if (filterparams.type) params.append("type", filterparams.type);
+    if (filterparams.category) params.append("category", filterparams.category);
+    if (user) params.append("userId", user?._id);
 
-      const response = await axiosInstance.get(
-        `${API_PATHS.JOBS.GET_ALL_JOBS}?${params.toString()}`
-      )
-      const jobsData = Array.isArray(response.data)
-        ? response.data
-        : response.data.jobs || []
-      setJobs(jobsData)
-    }
-    catch (err) {
-      console.error("Error fetching jobs:", err)
-      setError("Failed to fetch jobs. Please try again later.")
-      setJobs([])
-    }
-    finally {
-      setLoading(false)
-    }
-  };
+    const response = await axiosInstance.get(
+      `${API_PATHS.JOBS.GET_ALL_JOBS}?${params.toString()}`
+    );
+    
+    const jobsData = Array.isArray(response.data)
+      ? response.data
+      : response.data.jobs || [];
+    
+    setJobs(jobsData); // This line was missing!
+  } catch (err) {
+    console.error("Error fetching jobs:", err);
+    setError("Failed to fetch jobs. Please try again later.");
+    setJobs([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -131,10 +127,12 @@ const JobSeekerDashboard = () => {
     })
   }
 
-  const MobileFilterOverlay = () => (
+const MobileFilterOverlay = () => {
+  return (
     <div
-      className={`fixed inset-0 z-50 lg:hidden ${showMobileFilters ? "" : "hidden"
-        }`}
+      className={`fixed inset-0 z-50 lg:hidden ${
+        showMobileFilters ? "" : "hidden"
+      }`}
     >
       <div
         className="fixed inset-0 bg-black/50"
@@ -147,7 +145,6 @@ const JobSeekerDashboard = () => {
             onClick={() => setShowMobileFilters(false)}
             className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
           >
-
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -161,9 +158,9 @@ const JobSeekerDashboard = () => {
           />
         </div>
       </div>
-
     </div>
   )
+}
 
   const toggleSaveJob = async (jobId, isSaved) => {
     try {

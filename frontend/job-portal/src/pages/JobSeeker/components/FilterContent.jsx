@@ -1,30 +1,32 @@
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { CATEGORIES, JOB_TYPES } from "../../utils/data";
-import SalaryRangeSlider from "../../../components/Input/SalaryRangeSlider";
+import { ChevronDown, ChevronUp } from "lucide-react"
+import { CATEGORIES, JOB_TYPES } from "../../utils/data"
+import SalaryRangeSlider from "../../../components/Input/SalaryRangeSlider"
 
-const FilterSection = ({ title, children, isExpanded, onToggle }) => (
-  <div className="border-b border-gray-200 pb-4 mb-4 last:border-b-0">
-    <button
-      onClick={onToggle}
-      className="flex items-center justify-between w-full font-semibold text-gray-900 mb-3 hover:text-blue-600 transition-colors"
-    >
-      {title}
-      {isExpanded ? (
-        <ChevronUp className="w-4 h-4" />
-      ) : (
-        <ChevronDown className="w-4 h-4" />
-      )}
-    </button>
-    {isExpanded && children}
-  </div>
-);
+const FilterSection = ({ title, children, isExpanded, onToggle }) => {
+  return (
+    <div className="border-b border-gray-200 pb-4 mb-4 last:border-b-0">
+      <button
+        onClick={onToggle}
+        className="flex items-center justify-between w-full text-semibold text-gray-900 mb-3 hover:text-blue-600 transition-colors"
+      >
+        {title}
+        {isExpanded ? (
+          <ChevronUp className="w-4 h-4" />
+        ) : (
+          <ChevronDown className="w-4 h-4" />
+        )}
+      </button>
+      {isExpanded && children}
+    </div>
+  )
+}
 
 const FilterContent = ({
   toggleSection,
   clearAllFilters,
   expandedSections,
   filters,
-  handleFilterChange,
+  handleFilterChange
 }) => {
   return (
     <>
@@ -36,7 +38,7 @@ const FilterContent = ({
           Clear All
         </button>
       </div>
-
+      
       <FilterSection
         title="Job Type"
         isExpanded={expandedSections?.jobType}
@@ -61,7 +63,7 @@ const FilterContent = ({
 
       <FilterSection
         title="Salary Range"
-        isExpanded={expandedSections?.salary}
+        isExpanded={expandedSections.salary}
         onToggle={() => toggleSection("salary")}
       >
         <SalaryRangeSlider filters={filters} handleFilterChange={handleFilterChange} />
@@ -89,7 +91,7 @@ const FilterContent = ({
         </div>
       </FilterSection>
     </>
-  );
-};
+  )
+}
 
-export default FilterContent;
+export default FilterContent

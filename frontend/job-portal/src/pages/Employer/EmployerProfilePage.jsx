@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Building2, Mail, Edit3 } from "lucide-react"
 import { useAuth } from "../../context/AuthContext"
 import axiosInstance from "../utils/axiosinstance"
@@ -26,22 +26,6 @@ const EmployerProfilePage = () => {
   const [uploading, setUploading] = useState({ avatar: false, logo: false })
   const [saving, setSaving] = useState(false)
 
-  // Update profile data when user changes
-  useEffect(() => {
-    if (user) {
-      const userData = {
-        name: user.name || "",
-        email: user.email || "",
-        avatar: user.avatar || "",
-        companyName: user.companyName || "",
-        companyDescription: user.companyDescription || "",
-        companyLogo: user.companyLogo || "",
-      };
-      setProfileData(userData);
-      setFormData(userData);
-    }
-  }, [user]);
-
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -52,16 +36,13 @@ const EmployerProfilePage = () => {
   const handleImageUpload = async (file, type) => {
     setUploading((prev) => ({ ...prev, [type]: true }))
     try {
-      const uploadRes = await uploadImage(file);
-      const imageUrl = uploadRes.imageUrl || "";
+      const imgUploadRes = await uploadImage(file);
+      const imageUrl = imgUploadRes.imageUrl || "";
 
       const field = type === "avatar" ? "avatar" : "companyLogo";
       handleInputChange(field, imageUrl)
-      
-      toast.success(`${type === "avatar" ? "Avatar" : "Logo"} uploaded successfully!`);
     } catch (error) {
       console.error("Image upload failed:", error)
-      toast.error("Failed to upload image. Please try again.");
     }
     finally {
       setUploading((prev) => ({ ...prev, [type]: false }))
@@ -71,20 +52,8 @@ const EmployerProfilePage = () => {
   const handleImageChange = (e, type) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-      if (!allowedTypes.includes(file.type)) {
-        toast.error('Please upload a JPG or PNG image');
-        return;
-      }
-
-      // Validate file size (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image must be less than 5MB');
-        return;
-      }
-
       const previewUrl = URL.createObjectURL(file);
+
       const field = type === "avatar" ? "avatar" : "companyLogo";
       handleInputChange(field, previewUrl)
 
@@ -99,16 +68,15 @@ const EmployerProfilePage = () => {
         API_PATHS.AUTH.UPDATE_PROFILE,
         formData
       )
-      
       if (response.status === 200) {
-        toast.success("Profile updated successfully!")
+        toast.success("Profile Details Updated Successfully!")
         setProfileData({ ...formData })
         updateUser({ ...formData })
         setEditMode(false)
       }
     } catch (error) {
       console.error("Profile update failed:", error)
-      toast.error("Failed to update profile. Please try again.");
+      toast.error("Failed to update profile")
     }
     finally {
       setSaving(false)
@@ -141,7 +109,7 @@ const EmployerProfilePage = () => {
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
 
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-8 py-6 flex justify-between items-center">
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-8 py-6 flex justify-between items-center ">
               <h1 className="text-xl font-medium text-white">
                 Employer Profile
               </h1>
@@ -165,19 +133,11 @@ const EmployerProfilePage = () => {
                   </h2>
 
                   <div className="flex items-center space-x-4">
-                    {profileData.avatar ? (
-                      <img
-                        src={profileData.avatar}
-                        alt="Avatar"
-                        className="w-20 h-20 rounded-full object-cover border-4 border-blue-50"
-                      />
-                    ) : (
-                      <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-blue-600">
-                          {profileData.name?.charAt(0)?.toUpperCase() || "U"}
-                        </span>
-                      </div>
-                    )}
+                    <img
+                      src={profileData.avatar}
+                      alt="Avatar"
+                      className="w-20 h-20 rounded-full object-cover border-4 border-blue-50"
+                    />
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800">
                         {profileData.name}
@@ -197,20 +157,14 @@ const EmployerProfilePage = () => {
                   </h2>
 
                   <div className="flex items-center space-x-4">
-                    {profileData.companyLogo ? (
-                      <img
-                        src={profileData.companyLogo}
-                        alt="Company Logo"
-                        className="w-20 h-20 rounded-lg object-cover border-4 border-blue-50"
-                      />
-                    ) : (
-                      <div className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center">
-                        <Building2 className="w-10 h-10 text-gray-400" />
-                      </div>
-                    )}
+                    <img
+                      src={profileData.companyLogo}
+                      alt="Company Logo"
+                      className="w-20 h-20 rounded-lg object-cover border-4 border-blue-50"
+                    />
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800">
-                        {profileData.companyName || "Not set"}
+                        {profileData.companyName}
                       </h3>
                       <div className="flex items-center text-sm text-gray-600 mt-1">
                         <Building2 className="w-4 h-4 mr-2" />
@@ -218,6 +172,7 @@ const EmployerProfilePage = () => {
                       </div>
                     </div>
                   </div>
+
                 </div>
               </div>
 
@@ -227,7 +182,7 @@ const EmployerProfilePage = () => {
                   About Company
                 </h2>
                 <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 p-6 rounded-lg">
-                  {profileData.companyDescription || "No company description provided yet."}
+                  {profileData.companyDescription || "No description provided"}
                 </p>
               </div>
 
