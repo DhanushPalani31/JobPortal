@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Building2, Mail, Edit3 } from "lucide-react"
 import { useAuth } from "../../context/AuthContext"
 import axiosInstance from "../utils/axiosinstance"
@@ -10,7 +10,6 @@ import DashboardLayout from "../../components/layout/DashboardLayout"
 import EditProfileDetails from "./EditProfileDetails"
 
 const EmployerProfilePage = () => {
-
   const { user, updateUser } = useAuth();
 
   const [profileData, setProfileData] = useState({
@@ -19,16 +18,29 @@ const EmployerProfilePage = () => {
     avatar: user?.avatar || "",
     companyName: user?.companyName || "",
     companyDescription: user?.companyDescription || "",
-    comapanyLogo: user?.comapanyLogo || "",
+    companyLogo: user?.companyLogo || "",
   });
 
   const [editMode, setEditMode] = useState(false);
-
-  // ❌ spread was wrong → must be an object
   const [formData, setFormData] = useState({ ...profileData });
-
   const [uploading, setUploading] = useState({ avatar: false, logo: false })
   const [saving, setSaving] = useState(false)
+
+  // Update profile data when user changes
+  useEffect(() => {
+    if (user) {
+      const userData = {
+        name: user.name || "",
+        email: user.email || "",
+        avatar: user.avatar || "",
+        companyName: user.companyName || "",
+        companyDescription: user.companyDescription || "",
+        companyLogo: user.companyLogo || "",
+      };
+      setProfileData(userData);
+      setFormData(userData);
+    }
+  }, [user]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -40,14 +52,16 @@ const EmployerProfilePage = () => {
   const handleImageUpload = async (file, type) => {
     setUploading((prev) => ({ ...prev, [type]: true }))
     try {
-      const imgUploadRes = await uploadImage(file);
-      const avatarUrl = imgUploadRes.imageUrl || "";
+      const uploadRes = await uploadImage(file);
+      const imageUrl = uploadRes.imageUrl || "";
 
-      // ❌ company key typo fixed
-      const field = type === "avatar" ? "avatar" : "comapanyLogo";
-      handleInputChange(field, avatarUrl)
+      const field = type === "avatar" ? "avatar" : "companyLogo";
+      handleInputChange(field, imageUrl)
+      
+      toast.success(`${type === "avatar" ? "Avatar" : "Logo"} uploaded successfully!`);
     } catch (error) {
       console.error("Image upload failed:", error)
+      toast.error("Failed to upload image. Please try again.");
     }
     finally {
       setUploading((prev) => ({ ...prev, [type]: false }))
@@ -57,10 +71,21 @@ const EmployerProfilePage = () => {
   const handleImageChange = (e, type) => {
     const file = e.target.files[0];
     if (file) {
-      const previewUrl = URL.createObjectURL(file);
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Please upload a JPG or PNG image');
+        return;
+      }
 
-      // ❌ must match state key
-      const field = type === "avatar" ? "avatar" : "comapanyLogo";
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image must be less than 5MB');
+        return;
+      }
+
+      const previewUrl = URL.createObjectURL(file);
+      const field = type === "avatar" ? "avatar" : "companyLogo";
       handleInputChange(field, previewUrl)
 
       handleImageUpload(file, type)
@@ -74,14 +99,16 @@ const EmployerProfilePage = () => {
         API_PATHS.AUTH.UPDATE_PROFILE,
         formData
       )
+      
       if (response.status === 200) {
-        toast.success("Profile Details Updated Successfully!")
+        toast.success("Profile updated successfully!")
         setProfileData({ ...formData })
         updateUser({ ...formData })
         setEditMode(false)
       }
     } catch (error) {
       console.error("Profile update failed:", error)
+      toast.error("Failed to update profile. Please try again.");
     }
     finally {
       setSaving(false)
@@ -114,15 +141,14 @@ const EmployerProfilePage = () => {
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
 
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-8 py-6 flex justify-between items-center ">
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-8 py-6 flex justify-between items-center">
               <h1 className="text-xl font-medium text-white">
                 Employer Profile
               </h1>
               <button
                 onClick={() => setEditMode(true)}
-                className="bg-white/10 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+                className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
               >
-                {/* ❌ wrong icon name */}
                 <Edit3 className="w-4 h-4" />
                 <span>Edit Profile</span>
               </button>
@@ -139,11 +165,19 @@ const EmployerProfilePage = () => {
                   </h2>
 
                   <div className="flex items-center space-x-4">
-                    <img
-                      src={profileData.avatar}
-                      alt="Avatar"
-                      className="w-20 h-20 rounded-full object-cover border-4 border-blue-50"
-                    />
+                    {profileData.avatar ? (
+                      <img
+                        src={profileData.avatar}
+                        alt="Avatar"
+                        className="w-20 h-20 rounded-full object-cover border-4 border-blue-50"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span className="text-2xl font-bold text-blue-600">
+                          {profileData.name?.charAt(0)?.toUpperCase() || "U"}
+                        </span>
+                      </div>
+                    )}
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800">
                         {profileData.name}
@@ -163,14 +197,20 @@ const EmployerProfilePage = () => {
                   </h2>
 
                   <div className="flex items-center space-x-4">
-                    <img
-                      src={profileData.comapanyLogo}
-                      alt="Company Logo"
-                      className="w-20 h-20 rounded-lg object-cover border-4 border-blue-50"
-                    />
+                    {profileData.companyLogo ? (
+                      <img
+                        src={profileData.companyLogo}
+                        alt="Company Logo"
+                        className="w-20 h-20 rounded-lg object-cover border-4 border-blue-50"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center">
+                        <Building2 className="w-10 h-10 text-gray-400" />
+                      </div>
+                    )}
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800">
-                        {profileData.companyName}
+                        {profileData.companyName || "Not set"}
                       </h3>
                       <div className="flex items-center text-sm text-gray-600 mt-1">
                         <Building2 className="w-4 h-4 mr-2" />
@@ -178,7 +218,6 @@ const EmployerProfilePage = () => {
                       </div>
                     </div>
                   </div>
-
                 </div>
               </div>
 
@@ -188,7 +227,7 @@ const EmployerProfilePage = () => {
                   About Company
                 </h2>
                 <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 p-6 rounded-lg">
-                  {profileData.companyDescription}
+                  {profileData.companyDescription || "No company description provided yet."}
                 </p>
               </div>
 

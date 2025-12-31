@@ -9,6 +9,8 @@ import { jobRouter } from "./routes/jobRoutes.js";
 import { applicationRouter } from "./routes/applicationRoutes.js";
 import { savedJobsRouter } from "./routes/savedJobRoutes.js";
 import { analyticsRouter } from "./routes/analyticsRoutes.js";
+import { validateOpenAIKey } from "./config/openai.js";
+import aiRouter from "./routes/aiRoutes.js";
 
 dotenv.config();
 
@@ -24,6 +26,7 @@ app.use(
 );
 
 app.use(express.json());
+validateOpenAIKey();
 
 
 app.use("/api/auth", authRouter);
@@ -32,6 +35,7 @@ app.use("/api/jobs",jobRouter)
 app.use("/api/applications",applicationRouter)
 app.use("/api/save-jobs",savedJobsRouter)
 app.use("/api/analytics",analyticsRouter)
+app.use("/api/ai", aiRouter);
 
 connectDB();
 

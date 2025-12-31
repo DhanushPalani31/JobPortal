@@ -2,7 +2,6 @@ import { useState } from "react"
 
 const SalaryRangeSlider = ({ filters, handleFilterChange }) => {
 
-  // ❌ useState must return array, not object
   const [minSalary, setMinSalary] = useState(filters?.minSalary || 0)
   const [maxSalary, setMaxSalary] = useState(filters?.maxSalary || 0)
 
@@ -20,7 +19,6 @@ const SalaryRangeSlider = ({ filters, handleFilterChange }) => {
             step="1000"
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
             value={minSalary || ""}
-            // ❌ target.values → must be target.value
             onChange={({ target }) => setMinSalary(target.value)}
             onBlur={() =>
               handleFilterChange(
@@ -53,7 +51,7 @@ const SalaryRangeSlider = ({ filters, handleFilterChange }) => {
         </div>
       </div>
 
-      {/* Display current minSalary */}
+      {/* Display current salary range */}
       {(minSalary || maxSalary) ? (
         <div className="text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded">
           Range: {minSalary ? `$${Number(minSalary).toLocaleString()}` : "$0"} -{" "}

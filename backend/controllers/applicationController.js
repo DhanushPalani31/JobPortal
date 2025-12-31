@@ -2,9 +2,7 @@ import { Application } from "../models/Application.js";
 import { Job } from "../models/Job.js";
 import { User } from "../models/User.js";
 
-
-//   Jobseeker applies to a job
-
+// Jobseeker applies to a job
 export const applyToJob = async (req, res) => {
   try {
     // 1. Only jobseekers can apply
@@ -42,7 +40,6 @@ export const applyToJob = async (req, res) => {
     const application = await Application.create({
       job: jobId,
       applicant: req.user._id,
-      resume: req.user.resume || null, // assuming resume stored on user profile
       status: "Applied",
     });
 
@@ -53,9 +50,7 @@ export const applyToJob = async (req, res) => {
   }
 };
 
-
-//  Get applications for logged in jobseeker
-
+// Get applications for logged in jobseeker
 export const getMyApplications = async (req, res) => {
   try {
     if (!req.user || req.user.role !== "jobseeker") {
@@ -69,9 +64,8 @@ export const getMyApplications = async (req, res) => {
       .sort({ createdAt: -1 });
 
     if (!apps || apps.length === 0) {
-      return res.status(400).json({ message: "No applications yet" });
+      return res.status(404).json({ message: "No applications yet" });
     }
-
 
     return res.json(apps);
   } catch (error) {
@@ -80,9 +74,7 @@ export const getMyApplications = async (req, res) => {
   }
 };
 
-
-//  Employer: get all applicants for a job they own
-
+// Employer: get all applicants for a job they own
 export const getApplicantsForJob = async (req, res) => {
   try {
     if (!req.user || req.user.role !== "employer") {
@@ -101,37 +93,28 @@ export const getApplicantsForJob = async (req, res) => {
         .json({ message: "Job not found or you are not the owner" });
     }
 
+    // Fetch applications with populated applicant details
     const applications = await Application.find({ job: jobId })
-      .populate("applicant", "name email resume")
+      .populate("applicant", "name email resume avatar")
+      .populate("job", "title location type category")
       .sort({ createdAt: -1 });
 
-    return res.json({
-      job: {
-        _id: job._id,
-        title: job.title,
-        location: job.location,
-        type: job.type,
-      },
-      applications,
-    });
+    return res.json(applications);
   } catch (error) {
     console.error("getApplicantsForJob error:", error);
     return res.status(500).json({ message: error.message });
   }
 };
 
-
-//   Jobseeker: can view their own application
-//   Employer: can view applications for their jobs
-
+// Get single application by ID
 export const getApplicationById = async (req, res) => {
   try {
-    const { id } = req.params;       
-    console.log(id)
+    const { id } = req.params;
+    
     const application = await Application.findById(id)
-      .populate("job", "title company location type company")
-      .populate("applicant", "name email resume");
-   console.log(application)
+      .populate("job", "title company location type")
+      .populate("applicant", "name email resume avatar");
+
     if (!application) {
       return res.status(404).json({ message: "Application not found" });
     }
@@ -161,19 +144,37 @@ export const getApplicationById = async (req, res) => {
   }
 };
 
-
-//   Employer updates status of an application (Applied → Under Review → Shortlisted → Rejected → Hired)
-
+// Employer updates status of an application
 export const updateStatus = async (req, res) => {
   try {
-   const {status}=req.body;
-   const app=await Application.findById(req.params.id).populate("job");
-   if(!app || app.job.company.toString() !== req.user._id.toString()){
-    return res.ststus(403).json({message:"Not authorized to update this application"});
-   }
-   app.status=status;
-   await app.save();
-   res.json({message:"Application status updated successfully",status})
+    const { status } = req.body;
+    
+    // Validate status
+    const validStatuses = ["Applied", "In Review", "Rejected", "Accepted"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    const app = await Application.findById(req.params.id).populate("job");
+    
+    if (!app) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    if (!app.job || app.job.company.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ 
+        message: "Not authorized to update this application" 
+      });
+    }
+
+    app.status = status;
+    await app.save();
+    
+    res.json({ 
+      message: "Application status updated successfully", 
+      status: app.status,
+      application: app  // Return full application for frontend update
+    });
   } catch (error) {
     console.error("updateStatus error:", error);
     return res.status(500).json({ message: error.message });

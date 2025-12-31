@@ -17,13 +17,7 @@ import JobDashboardCard from "../../components/Cards/JobDashboardCard";
 import ApplicantDashboardCard from "../../components/Cards/ApplicantDashboardCard";
 
 /* ================= CARD ================= */
-const Card = ({
-  title,
-  headerAction,
-  subtitle,
-  className = "",
-  children,
-}) => {
+const Card = ({ title, headerAction, subtitle, className = "", children }) => {
   return (
     <div
       className={`bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow ${className}`}
@@ -32,23 +26,17 @@ const Card = ({
         <div className="flex items-center justify-between p-6 pb-4">
           <div>
             {title && (
-              <h3 className="text-lg font-semibold text-gray-900">
-                {title}
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
             )}
             {subtitle && (
-              <p className="text-sm text-gray-500 mt-1">
-                {subtitle}
-              </p>
+              <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
             )}
           </div>
           {headerAction}
         </div>
       )}
 
-      <div className={title ? "px-6 pb-6" : "p-6"}>
-        {children}
-      </div>
+      <div className={title ? "px-6 pb-6" : "p-6"}>{children}</div>
     </div>
   );
 };
@@ -100,9 +88,7 @@ const EmployerDashboard = () => {
   const getDashboardOverView = async () => {
     try {
       setIsLoading(true);
-      const response = await axiosInstance.get(
-        API_PATHS.DASHBOARD.OVERVIEW
-      );
+      const response = await axiosInstance.get(API_PATHS.DASHBOARD.OVERVIEW);
 
       if (response.status === 200) {
         setDashboardData(response.data);
@@ -167,11 +153,9 @@ const EmployerDashboard = () => {
           >
             {dashboardData?.data?.recentJobs?.length ? (
               <div className="space-y-3">
-                {dashboardData.data.recentJobs
-                  .slice(0, 3)
-                  .map((job) => (
-                    <JobDashboardCard key={job._id} job={job} />
-                  ))}
+                {dashboardData.data.recentJobs.slice(0, 3).map((job) => (
+                  <JobDashboardCard key={job._id} job={job} />
+                ))}
               </div>
             ) : (
               <p className="text-sm text-gray-500">
@@ -186,7 +170,7 @@ const EmployerDashboard = () => {
             subtitle="Latest candidates who applied"
             headerAction={
               <button
-                onClick={() => navigate("/applications")}
+                onClick={() => navigate("/all-applications")}
                 className="text-sm font-medium text-blue-600 hover:underline"
               >
                 View all
