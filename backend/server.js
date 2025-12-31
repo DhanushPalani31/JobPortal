@@ -20,7 +20,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://jobportalfy.netlify.app"
+    "https://jobportal-q4yg.onrender.com/"
   ],
   credentials: true
 }));

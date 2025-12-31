@@ -1,4 +1,4 @@
-export const BASE_URL = "https://jobportal-q4yg.onrender.com";
+export const BASE_URL = "https://jobportal-q4yg.onrender.com/";
 
 export const API_PATHS = {
   AUTH: {
